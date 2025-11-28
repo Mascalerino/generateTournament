@@ -327,7 +327,16 @@
   <!-- GRUPOS GENERADOS -->
   <div class="card mb-4" *ngIf="showGroups && generatedGroups.length > 0">
     <div class="card-header bg-success text-white">
-      <h2 class="h4 mb-0">Grupos Generados</h2>
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h4 mb-0">Grupos Generados</h2>
+        <button 
+          type="button" 
+          class="btn btn-light btn-sm" 
+          (click)="exportToPDF()"
+          title="Descargar PDF">
+          <i class="bi bi-file-pdf"></i> Descargar PDF
+        </button>
+      </div>
     </div>
     <div class="card-body">
       <div class="row">

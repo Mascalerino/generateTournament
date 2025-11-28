@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Category, Participant, GroupDistributionType, GroupSettings, Tournament, Group } from './models/tournament.models';
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-root',
@@ -316,6 +317,91 @@ export class AppComponent {
       [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
     return newArray;
+  }
+
+  // Método para exportar a PDF
+  exportToPDF() {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    let yPosition = margin;
+
+    // Título del documento
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    const title = this.tournamentName || 'Grupos del Torneo';
+    doc.text(title, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 15;
+
+    // Calcular cuántos grupos caben por fila
+    const groupsPerRow = this.generatedGroups.length <= 2 ? this.generatedGroups.length : 3;
+    const columnWidth = (pageWidth - 2 * margin) / groupsPerRow;
+    const groupSpacing = 10;
+
+    let currentColumn = 0;
+    let maxYInRow = yPosition;
+
+    this.generatedGroups.forEach((group, index) => {
+      const xPosition = margin + (currentColumn * columnWidth);
+      let groupY = yPosition;
+
+      // Título del grupo
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(group.name, xPosition + columnWidth / 2, groupY, { align: 'center' });
+      groupY += 8;
+
+      // Línea separadora
+      doc.setLineWidth(0.5);
+      doc.line(xPosition, groupY, xPosition + columnWidth - 5, groupY);
+      groupY += 6;
+
+      // Participantes
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      group.participants.forEach((participant, i) => {
+        const categoryName = this.getCategoryName(participant.categoryId);
+        const participantText = `${i + 1}. ${participant.name}`;
+        
+        doc.text(participantText, xPosition + 2, groupY);
+        
+        // Badge de categoría
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`(${categoryName})`, xPosition + columnWidth - 30, groupY);
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        
+        groupY += 6;
+
+        // Verificar si necesitamos una nueva página
+        if (groupY > pageHeight - margin) {
+          doc.addPage();
+          groupY = margin;
+          yPosition = margin;
+          currentColumn = 0;
+          maxYInRow = yPosition;
+        }
+      });
+
+      // Actualizar la posición Y máxima en esta fila
+      maxYInRow = Math.max(maxYInRow, groupY);
+
+      currentColumn++;
+
+      // Si hemos completado una fila, pasar a la siguiente
+      if (currentColumn >= groupsPerRow) {
+        currentColumn = 0;
+        yPosition = maxYInRow + groupSpacing;
+      }
+    });
+
+    // Guardar el PDF
+    const fileName = this.tournamentName 
+      ? `${this.tournamentName.replace(/\s+/g, '_')}_grupos.pdf` 
+      : 'grupos_torneo.pdf';
+    doc.save(fileName);
   }
 }
 
