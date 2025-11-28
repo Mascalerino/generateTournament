@@ -1,1 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
+
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+body {
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.card-header {
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+  font-weight: 600;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.btn-group-sm > .btn {
+  font-size: 0.875rem;
+}
+
+.form-check-input:checked {
+  background-color: #198754;
+  border-color: #198754;
+}
