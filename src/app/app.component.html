@@ -329,13 +329,22 @@
     <div class="card-header bg-success text-white">
       <div class="d-flex justify-content-between align-items-center">
         <h2 class="h4 mb-0">Grupos Generados</h2>
-        <button 
-          type="button" 
-          class="btn btn-light btn-sm" 
-          (click)="exportToPDF()"
-          title="Descargar PDF">
-          <i class="bi bi-file-pdf"></i> Descargar PDF
-        </button>
+        <div class="btn-group btn-group-sm" role="group">
+          <button 
+            type="button" 
+            class="btn btn-light" 
+            (click)="exportToPDF()"
+            title="Descargar PDF Resumen">
+            <i class="bi bi-file-pdf"></i> PDF Resumen
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-warning" 
+            (click)="exportDetailedPDF()"
+            title="Descargar PDF Detallado con Enfrentamientos">
+            <i class="bi bi-file-earmark-text"></i> PDF Detallado
+          </button>
+        </div>
       </div>
     </div>
     <div class="card-body">

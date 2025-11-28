@@ -403,5 +403,125 @@ export class AppComponent {
       : 'grupos_torneo.pdf';
     doc.save(fileName);
   }
+
+  // Método para exportar PDF detallado (una página por grupo)
+  exportDetailedPDF() {
+    const doc = new jsPDF({ orientation: 'portrait' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+
+    this.generatedGroups.forEach((group, groupIndex) => {
+      if (groupIndex > 0) {
+        doc.addPage();
+      }
+
+      let yPosition = margin;
+
+      // Título del grupo
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text(group.name, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
+
+      // Línea separadora
+      doc.setLineWidth(0.5);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 10;
+
+      // Encabezados de la tabla de participantes
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Participantes', margin, yPosition);
+      doc.text('Victorias', pageWidth - margin - 80, yPosition);
+      doc.text('Dif. Goles', pageWidth - margin - 30, yPosition);
+      yPosition += 8;
+
+      // Línea de encabezado
+      doc.setLineWidth(0.3);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 8;
+
+      // Lista de participantes con espacio para victorias y diferencia de goles
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      
+      group.participants.forEach((participant, index) => {
+        const participantText = `${index + 1}. ${participant.name}`;
+        
+        // Nombre del participante
+        doc.text(participantText, margin + 2, yPosition);
+        
+        // Líneas verticales para separar columnas
+        const victoryLineX = pageWidth - margin - 85;
+        const goalsLineX = pageWidth - margin - 35;
+        
+        doc.setLineWidth(0.2);
+        doc.line(victoryLineX, yPosition - 5, victoryLineX, yPosition + 2);
+        doc.line(goalsLineX, yPosition - 5, goalsLineX, yPosition + 2);
+        
+        // Líneas horizontales para escribir victorias y diferencia de goles
+        doc.line(pageWidth - margin - 80, yPosition, pageWidth - margin - 40, yPosition);
+        doc.line(pageWidth - margin - 30, yPosition, pageWidth - margin - 5, yPosition);
+        
+        yPosition += 10;
+      });
+
+      yPosition += 10;
+
+      // Título de enfrentamientos
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Enfrentamientos', margin, yPosition);
+      yPosition += 10;
+
+      // Línea separadora
+      doc.setLineWidth(0.5);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 8;
+
+      // Generar todos los enfrentamientos (cada pareja solo una vez)
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      
+      const matches: string[] = [];
+      for (let i = 0; i < group.participants.length; i++) {
+        for (let j = i + 1; j < group.participants.length; j++) {
+          const participant1 = group.participants[i];
+          const participant2 = group.participants[j];
+          matches.push(`${participant1.name} vs ${participant2.name}`);
+        }
+      }
+
+      // Mostrar enfrentamientos en lista con línea para resultado
+      matches.forEach((match, index) => {
+        const matchY = yPosition + (index * 8);
+
+        // Verificar si necesitamos advertir sobre espacio
+        if (matchY > pageHeight - margin - 10) {
+          doc.setFontSize(8);
+          doc.setTextColor(255, 0, 0);
+          doc.text('(Continúa en página adicional)', margin, pageHeight - 10);
+          return;
+        }
+
+        doc.setTextColor(0, 0, 0);
+        
+        // Texto del enfrentamiento
+        doc.text(`${index + 1}. ${match}`, margin + 2, matchY);
+        
+        // Línea para anotar el resultado
+        const resultLineStart = pageWidth - margin - 40;
+        doc.setLineWidth(0.2);
+        doc.line(resultLineStart, matchY, pageWidth - margin - 5, matchY);
+      });
+    });
+
+    // Guardar el PDF
+    const fileName = this.tournamentName 
+      ? `${this.tournamentName.replace(/\s+/g, '_')}_detallado.pdf` 
+      : 'grupos_detallado.pdf';
+    doc.save(fileName);
+  }
 }
 
