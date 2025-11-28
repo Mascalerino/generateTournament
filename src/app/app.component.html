@@ -53,12 +53,13 @@
           class="form-check-input" 
           type="checkbox" 
           id="mixedGroups" 
-          [(ngModel)]="mixedGroups">
-        <label class="form-check-label" for="mixedGroups">
-          Grupos mezclados entre categorías
+          [(ngModel)]="mixedGroups"
+          disabled>
+        <label class="form-check-label text-muted" for="mixedGroups">
+          Grupos mezclados entre categorías (Próximamente)
         </label>
         <div class="form-text">
-          Si está marcado, cada grupo tendrá un número equitativo de participantes de cada categoría
+          Esta funcionalidad estará disponible en una próxima actualización
         </div>
       </div>
     </div>
@@ -97,9 +98,6 @@
           <option [value]="GroupDistributionType.AUTOMATIC">
             Número de participantes automático
           </option>
-          <option [value]="GroupDistributionType.MANUAL">
-            Número de participantes manual
-          </option>
         </select>
       </div>
 
@@ -115,23 +113,6 @@
           step="1">
         <div class="form-text">
           Los participantes restantes se distribuirán de uno en uno en los grupos
-        </div>
-      </div>
-
-      <!-- Distribución manual -->
-      <div *ngIf="distributionType === GroupDistributionType.MANUAL">
-        <label class="form-label">Participantes por Grupo</label>
-        <div class="row g-2">
-          <div class="col-md-4" *ngFor="let size of manualGroupSizes; let i = index">
-            <label [for]="'group' + (i + 1)" class="form-label small">Grupo {{ i + 1 }}</label>
-            <input 
-              type="number" 
-              class="form-control" 
-              [id]="'group' + (i + 1)" 
-              [(ngModel)]="manualGroupSizes[i]"
-              min="1" 
-              step="1">
-          </div>
         </div>
       </div>
     </div>
@@ -190,28 +171,19 @@
         </div>
         <div *ngIf="showBulkInput">
           <div class="row g-2">
-            <div class="col-md-9">
+            <div class="col-md-10">
               <textarea 
                 class="form-control" 
                 id="bulkParticipants" 
                 [(ngModel)]="bulkParticipantNames"
                 rows="4"
-                placeholder="Ingrese nombres separados por comas. Ejemplo: Juan Pérez, María García (P), Carlos López">
+                placeholder="Ingrese nombres separados por comas. Ejemplo: Juan Pérez (1), María García (2P), Carlos López (3)">
               </textarea>
               <div class="form-text">
-                Separe los nombres con comas (,) o saltos de línea. Añada (P) después del nombre para marcarlo como pagado. Ejemplo: Juan Pérez (P)
+                Separe los nombres con comas (,) o saltos de línea. Añada entre paréntesis: (1) a (5) para la categoría, P para pagado. Ejemplos: Juan (2), Ana (3P), Pedro (P). Sin paréntesis = Categoría 1, no pagado.
               </div>
             </div>
-            <div class="col-md-3">
-              <label for="bulkCategory" class="form-label">Categoría</label>
-              <select 
-                class="form-select mb-2" 
-                id="bulkCategory" 
-                [(ngModel)]="bulkCategoryId">
-                <option *ngFor="let category of categories" [value]="category.id">
-                  {{ category.name }}
-                </option>
-              </select>
+            <div class="col-md-2">
               <button 
                 type="button" 
                 class="btn btn-success w-100" 
@@ -261,9 +233,17 @@
                     (keyup.escape)="cancelEdit()">
                 </td>
                 <td>
-                  <span class="badge bg-secondary">
+                  <span class="badge bg-secondary" *ngIf="editingParticipantId !== participant.id">
                     {{ getCategoryName(participant.categoryId) }}
                   </span>
+                  <select 
+                    *ngIf="editingParticipantId === participant.id"
+                    class="form-select form-select-sm" 
+                    [(ngModel)]="editingParticipantCategoryId">
+                    <option *ngFor="let category of categories" [value]="category.id">
+                      {{ category.name }}
+                    </option>
+                  </select>
                 </td>
                 <td>
                   <div class="form-check">
@@ -322,6 +302,54 @@
       <!-- Mensaje cuando no hay participantes -->
       <div *ngIf="participants.length === 0" class="alert alert-info">
         No hay participantes añadidos. Comience añadiendo participantes usando el formulario de arriba.
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERAR GRUPOS -->
+  <div class="card mb-4" *ngIf="participants.length > 0">
+    <div class="card-header bg-warning text-dark">
+      <h2 class="h4 mb-0">Generar Grupos</h2>
+    </div>
+    <div class="card-body">
+      <div class="d-grid gap-2">
+        <button 
+          type="button" 
+          class="btn btn-warning btn-lg" 
+          (click)="generateGroups()"
+          [disabled]="!canGenerateGroups()">
+          <i class="bi bi-shuffle"></i> Generar Grupos Aleatoriamente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRUPOS GENERADOS -->
+  <div class="card mb-4" *ngIf="showGroups && generatedGroups.length > 0">
+    <div class="card-header bg-success text-white">
+      <h2 class="h4 mb-0">Grupos Generados</h2>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 col-lg-4 mb-3" *ngFor="let group of generatedGroups">
+          <div class="card h-100 border-success">
+            <div class="card-header bg-success bg-opacity-10 text-center">
+              <h5 class="mb-0">{{ group.name }}</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item px-0" *ngFor="let participant of group.participants; let i = index">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>{{ i + 1 }}. {{ participant.name }}</span>
+                    <span class="badge bg-secondary">
+                      {{ getCategoryName(participant.categoryId) }}
+                    </span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

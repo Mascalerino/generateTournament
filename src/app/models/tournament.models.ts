@@ -12,8 +12,7 @@ export interface Participant {
 
 export enum GroupDistributionType {
   SAME_NUMBER = 'same',
-  AUTOMATIC = 'automatic',
-  MANUAL = 'manual'
+  AUTOMATIC = 'automatic'
 }
 
 export interface GroupSettings {
@@ -29,5 +28,11 @@ export interface Tournament {
   categories: Category[];
   mixedGroups: boolean;
   groupSettings: GroupSettings;
+  participants: Participant[];
+}
+
+export interface Group {
+  id: number;
+  name: string;
   participants: Participant[];
 }
