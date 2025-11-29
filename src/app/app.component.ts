@@ -43,6 +43,13 @@ export class AppComponent {
   groupMatches: Map<number, Match[]> = new Map();
   groupStandings: Map<number, GroupStanding[]> = new Map();
 
+  // Control de colapso de secciones
+  isGeneralDataCollapsed: boolean = false;
+  isGroupDataCollapsed: boolean = false;
+  isParticipantDataCollapsed: boolean = false;
+  isGeneratedGroupsCollapsed: boolean = false;
+  isMatchManagementCollapsed: boolean = false;
+
   // Enums para template
   GroupDistributionType = GroupDistributionType;
 

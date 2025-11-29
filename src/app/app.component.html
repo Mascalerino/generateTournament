@@ -3,10 +3,13 @@
 
   <!-- DATOS GENERALES -->
   <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      <h2 class="h4 mb-0">Datos Generales</h2>
+    <div class="card-header bg-primary text-white" (click)="isGeneralDataCollapsed = !isGeneralDataCollapsed" style="cursor: pointer;">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h4 mb-0">Datos Generales</h2>
+        <i class="bi" [class.bi-chevron-down]="!isGeneralDataCollapsed" [class.bi-chevron-up]="isGeneralDataCollapsed"></i>
+      </div>
     </div>
-    <div class="card-body">
+    <div class="card-body" [class.d-none]="isGeneralDataCollapsed">
       <!-- Nombre del torneo -->
       <div class="mb-3">
         <label for="tournamentName" class="form-label">Nombre del Torneo</label>
@@ -67,10 +70,13 @@
 
   <!-- DATOS DE GRUPOS -->
   <div class="card mb-4">
-    <div class="card-header bg-success text-white">
-      <h2 class="h4 mb-0">Datos de Grupos</h2>
+    <div class="card-header bg-success text-white" (click)="isGroupDataCollapsed = !isGroupDataCollapsed" style="cursor: pointer;">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h4 mb-0">Datos de Grupos</h2>
+        <i class="bi" [class.bi-chevron-down]="!isGroupDataCollapsed" [class.bi-chevron-up]="isGroupDataCollapsed"></i>
+      </div>
     </div>
-    <div class="card-body">
+    <div class="card-body" [class.d-none]="isGroupDataCollapsed">
       <!-- Número de grupos -->
       <div class="mb-3">
         <label for="numberOfGroups" class="form-label">Número de Grupos</label>
@@ -120,10 +126,13 @@
 
   <!-- DATOS DE PARTICIPANTES -->
   <div class="card mb-4">
-    <div class="card-header bg-info text-white">
-      <h2 class="h4 mb-0">Datos de Participantes</h2>
+    <div class="card-header bg-info text-white" (click)="isParticipantDataCollapsed = !isParticipantDataCollapsed" style="cursor: pointer;">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h4 mb-0">Datos de Participantes</h2>
+        <i class="bi" [class.bi-chevron-down]="!isParticipantDataCollapsed" [class.bi-chevron-up]="isParticipantDataCollapsed"></i>
+      </div>
     </div>
-    <div class="card-body">
+    <div class="card-body" [class.d-none]="isParticipantDataCollapsed">
       <!-- Añadir participante individual -->
       <div class="row g-2 mb-4">
         <div class="col-md-5">
@@ -328,8 +337,11 @@
   <div class="card mb-4" *ngIf="showGroups && generatedGroups.length > 0">
     <div class="card-header bg-success text-white">
       <div class="d-flex justify-content-between align-items-center">
-        <h2 class="h4 mb-0">Grupos Generados</h2>
-        <div class="btn-group btn-group-sm" role="group">
+        <div class="d-flex align-items-center" (click)="isGeneratedGroupsCollapsed = !isGeneratedGroupsCollapsed" style="cursor: pointer; flex-grow: 1;">
+          <h2 class="h4 mb-0 me-2">Grupos Generados</h2>
+          <i class="bi" [class.bi-chevron-down]="!isGeneratedGroupsCollapsed" [class.bi-chevron-up]="isGeneratedGroupsCollapsed"></i>
+        </div>
+        <div class="btn-group btn-group-sm" role="group" (click)="$event.stopPropagation()">
           <button 
             type="button" 
             class="btn btn-light" 
@@ -347,7 +359,7 @@
         </div>
       </div>
     </div>
-    <div class="card-body">
+    <div class="card-body" [class.d-none]="isGeneratedGroupsCollapsed">
       <div class="row">
         <div class="col-md-6 col-lg-4 mb-3" *ngFor="let group of generatedGroups">
           <div class="card h-100 border-success">
@@ -374,10 +386,13 @@
 
   <!-- GESTIÓN DE PARTIDOS Y CLASIFICACIÓN -->
   <div class="card mb-4" *ngIf="showGroups && generatedGroups.length > 0">
-    <div class="card-header bg-warning text-dark">
-      <h2 class="h4 mb-0">Gestión de Partidos y Clasificación</h2>
+    <div class="card-header bg-warning text-dark" (click)="isMatchManagementCollapsed = !isMatchManagementCollapsed" style="cursor: pointer;">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h4 mb-0">Gestión de Partidos y Clasificación</h2>
+        <i class="bi" [class.bi-chevron-down]="!isMatchManagementCollapsed" [class.bi-chevron-up]="isMatchManagementCollapsed"></i>
+      </div>
     </div>
-    <div class="card-body">
+    <div class="card-body" [class.d-none]="isMatchManagementCollapsed">
       <div *ngFor="let group of generatedGroups" class="mb-5">
         <h4 class="border-bottom pb-2 mb-3">{{ group.name }}</h4>
         
