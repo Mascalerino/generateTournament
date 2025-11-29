@@ -242,9 +242,10 @@ export class AppComponent {
     let currentIndex = 0;
 
     for (let i = 0; i < this.numberOfGroups; i++) {
+      const groupLetter = String.fromCharCode(65 + i);
       const group: Group = {
         id: i + 1,
-        name: `Grupo ${i + 1}`,
+        name: `Grupo ${groupLetter}`,
         participants: []
       };
 
@@ -277,9 +278,10 @@ export class AppComponent {
 
     // Inicializar grupos con el mínimo de participantes
     for (let i = 0; i < this.numberOfGroups; i++) {
+      const groupLetter = String.fromCharCode(65 + i);
       const group: Group = {
         id: i + 1,
-        name: `Grupo ${i + 1}`,
+        name: `Grupo ${groupLetter}`,
         participants: []
       };
 
