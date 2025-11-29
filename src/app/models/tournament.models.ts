@@ -36,3 +36,18 @@ export interface Group {
   name: string;
   participants: Participant[];
 }
+
+export interface Match {
+  id: number;
+  participant1Id: number;
+  participant2Id: number;
+  score1: number;
+  score2: number;
+  winner: number | null; // 1 or 2
+}
+
+export interface GroupStanding {
+  participantId: number;
+  wins: number;
+  goalDifference: number;
+}

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Category, Participant, GroupDistributionType, GroupSettings, Tournament, Group } from './models/tournament.models';
+import { Category, Participant, GroupDistributionType, GroupSettings, Tournament, Group, Match, GroupStanding } from './models/tournament.models';
 import jsPDF from 'jspdf';
 
 @Component({
@@ -38,6 +38,10 @@ export class AppComponent {
   // Grupos generados
   generatedGroups: Group[] = [];
   showGroups: boolean = false;
+
+  // Partidos y clasificaciones
+  groupMatches: Map<number, Match[]> = new Map();
+  groupStandings: Map<number, GroupStanding[]> = new Map();
 
   // Enums para template
   GroupDistributionType = GroupDistributionType;
@@ -217,6 +221,42 @@ export class AppComponent {
     }
 
     this.showGroups = true;
+    this.initializeMatchesAndStandings();
+  }
+
+  private initializeMatchesAndStandings() {
+    this.groupMatches.clear();
+    this.groupStandings.clear();
+
+    this.generatedGroups.forEach(group => {
+      // Generar partidos para cada grupo
+      const matches: Match[] = [];
+      let matchId = 0;
+      
+      for (let i = 0; i < group.participants.length; i++) {
+        for (let j = i + 1; j < group.participants.length; j++) {
+          matches.push({
+            id: matchId++,
+            participant1Id: group.participants[i].id,
+            participant2Id: group.participants[j].id,
+            score1: 0,
+            score2: 0,
+            winner: null
+          });
+        }
+      }
+      
+      this.groupMatches.set(group.id, matches);
+
+      // Inicializar clasificación
+      const standings: GroupStanding[] = group.participants.map(p => ({
+        participantId: p.id,
+        wins: 0,
+        goalDifference: 0
+      }));
+      
+      this.groupStandings.set(group.id, standings);
+    });
   }
 
   private generateRegularGroups(participants: Participant[]): Group[] {
@@ -319,6 +359,83 @@ export class AppComponent {
       [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
     return newArray;
+  }
+
+  // Métodos para partidos y clasificación
+  getGroupMatches(groupId: number): Match[] {
+    return this.groupMatches.get(groupId) || [];
+  }
+
+  getGroupStandings(groupId: number): GroupStanding[] {
+    return this.groupStandings.get(groupId) || [];
+  }
+
+  getParticipantById(participantId: number): Participant | undefined {
+    return this.participants.find(p => p.id === participantId);
+  }
+
+  getStandingForParticipant(groupId: number, participantId: number): GroupStanding | undefined {
+    const standings = this.getGroupStandings(groupId);
+    return standings.find(s => s.participantId === participantId);
+  }
+
+  onMatchWinnerChange(groupId: number, match: Match, winner: number) {
+    if (match.winner === winner) {
+      match.winner = null;
+    } else {
+      match.winner = winner;
+    }
+    this.updateGroupStandings(groupId);
+  }
+
+  onMatchScoreChange(groupId: number, match: Match) {
+    // Actualizar clasificación cuando cambian los marcadores
+    this.updateGroupStandings(groupId);
+  }
+
+  private updateGroupStandings(groupId: number) {
+    const matches = this.getGroupMatches(groupId);
+    const standings = this.getGroupStandings(groupId);
+
+    // Resetear estadísticas
+    standings.forEach(s => {
+      s.wins = 0;
+      s.goalDifference = 0;
+    });
+
+    // Calcular estadísticas basadas en los partidos
+    matches.forEach(match => {
+      if (match.winner !== null) {
+        const winnerId = match.winner === 1 ? match.participant1Id : match.participant2Id;
+        const winnerStanding = standings.find(s => s.participantId === winnerId);
+        if (winnerStanding) {
+          winnerStanding.wins++;
+        }
+      }
+
+      // Calcular diferencia de goles si hay un ganador marcado
+      if (match.winner !== null) {
+        const standing1 = standings.find(s => s.participantId === match.participant1Id);
+        const standing2 = standings.find(s => s.participantId === match.participant2Id);
+        
+        if (standing1 && standing2) {
+          const diff = match.score1 - match.score2;
+          standing1.goalDifference += diff;
+          standing2.goalDifference -= diff;
+        }
+      }
+    });
+
+    // Ordenar por victorias y luego por diferencia de goles
+    const sortedStandings = standings.sort((a, b) => {
+      if (b.wins !== a.wins) {
+        return b.wins - a.wins;
+      }
+      return b.goalDifference - a.goalDifference;
+    });
+
+    // Actualizar el Map con el array ordenado
+    this.groupStandings.set(groupId, sortedStandings);
   }
 
   // Método para exportar a PDF
