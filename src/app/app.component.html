@@ -344,6 +344,13 @@
         <div class="btn-group btn-group-sm" role="group" (click)="$event.stopPropagation()">
           <button 
             type="button" 
+            class="btn btn-info" 
+            (click)="assignRandomLetters()"
+            title="Asignar letras aleatorias a los grupos">
+            <i class="bi bi-shuffle"></i> Letras Aleatorias
+          </button>
+          <button 
+            type="button" 
             class="btn btn-light" 
             (click)="exportToPDF()"
             title="Descargar PDF Resumen">

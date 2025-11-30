@@ -289,10 +289,9 @@ export class AppComponent {
     let currentIndex = 0;
 
     for (let i = 0; i < this.numberOfGroups; i++) {
-      const groupLetter = String.fromCharCode(65 + i);
       const group: Group = {
         id: i + 1,
-        name: `Grupo ${groupLetter}`,
+        name: `Grupo ${i + 1}`,
         participants: []
       };
 
@@ -325,10 +324,9 @@ export class AppComponent {
 
     // Inicializar grupos con el mínimo de participantes
     for (let i = 0; i < this.numberOfGroups; i++) {
-      const groupLetter = String.fromCharCode(65 + i);
       const group: Group = {
         id: i + 1,
-        name: `Grupo ${groupLetter}`,
+        name: 'Grupo',
         participants: []
       };
 
@@ -530,6 +528,23 @@ export class AppComponent {
     doc.save(fileName);
   }
 
+  // Método para asignar letras aleatorias a los grupos
+  assignRandomLetters() {
+    // Generar un array de letras disponibles según el número de grupos
+    const letters: string[] = [];
+    for (let i = 0; i < this.generatedGroups.length; i++) {
+      letters.push(String.fromCharCode(65 + i)); // A, B, C, D, ...
+    }
+    
+    // Mezclar las letras aleatoriamente
+    const shuffledLetters = this.shuffleArray(letters);
+    
+    // Asignar las letras mezcladas a los grupos
+    this.generatedGroups.forEach((group, index) => {
+      group.name = `Grupo ${shuffledLetters[index]}`;
+    });
+  }
+
   // Método para exportar PDF detallado (una página por grupo)
   exportDetailedPDF() {
     const doc = new jsPDF({ orientation: 'portrait' });
@@ -547,7 +562,7 @@ export class AppComponent {
       // Título del grupo
       doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
-      doc.text(group.name, pageWidth / 2, yPosition, { align: 'center' });
+      doc.text('Grupo', pageWidth / 2, yPosition, { align: 'center' });
       yPosition += 15;
 
       // Línea separadora
@@ -555,12 +570,13 @@ export class AppComponent {
       doc.line(margin, yPosition, pageWidth - margin, yPosition);
       yPosition += 10;
 
-      // Encabezados de la tabla de participantes
+      // Encabezados de la tabla de participantes (3 columnas más pequeñas)
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text('Participantes', margin, yPosition);
-      doc.text('Victorias', pageWidth - margin - 80, yPosition);
-      doc.text('Dif. Goles', pageWidth - margin - 30, yPosition);
+      doc.text('Vic.', pageWidth - margin - 60, yPosition);
+      doc.text('D.G.', pageWidth - margin - 40, yPosition);
+      doc.text('Clas.', pageWidth - margin - 18, yPosition);
       yPosition += 8;
 
       // Línea de encabezado
@@ -568,7 +584,7 @@ export class AppComponent {
       doc.line(margin, yPosition, pageWidth - margin, yPosition);
       yPosition += 8;
 
-      // Lista de participantes con espacio para victorias y diferencia de goles
+      // Lista de participantes con espacio para victorias, diferencia de goles y clasificación
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(11);
       
@@ -579,16 +595,19 @@ export class AppComponent {
         doc.text(participantText, margin + 2, yPosition);
         
         // Líneas verticales para separar columnas
-        const victoryLineX = pageWidth - margin - 85;
-        const goalsLineX = pageWidth - margin - 35;
+        const victoryLineX = pageWidth - margin - 63;
+        const goalsLineX = pageWidth - margin - 43;
+        const classLineX = pageWidth - margin - 21;
         
         doc.setLineWidth(0.2);
         doc.line(victoryLineX, yPosition - 5, victoryLineX, yPosition + 2);
         doc.line(goalsLineX, yPosition - 5, goalsLineX, yPosition + 2);
+        doc.line(classLineX, yPosition - 5, classLineX, yPosition + 2);
         
-        // Líneas horizontales para escribir victorias y diferencia de goles
-        doc.line(pageWidth - margin - 80, yPosition, pageWidth - margin - 40, yPosition);
-        doc.line(pageWidth - margin - 30, yPosition, pageWidth - margin - 5, yPosition);
+        // Líneas horizontales para escribir victorias, diferencia de goles y clasificación
+        doc.line(pageWidth - margin - 60, yPosition, pageWidth - margin - 45, yPosition);
+        doc.line(pageWidth - margin - 40, yPosition, pageWidth - margin - 24, yPosition);
+        doc.line(pageWidth - margin - 18, yPosition, pageWidth - margin - 5, yPosition);
         
         yPosition += 10;
       });
